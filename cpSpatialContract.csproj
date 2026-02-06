@@ -6,14 +6,16 @@
     <Nullable>enable</Nullable>
     <!-- NuGet metadata -->
     <PackageId>cpSpatial.Contracts</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>Civil Pro Software</Authors>
     <Company>Civil Pro Software</Company>
     <Description>
       Shared DTOs and schema contracts for CivilPro Spatial job payloads.
     </Description>
     <PackageTags>civilpro spatial ifc geometry contracts</PackageTags>
-    <RepositoryUrl>https://github.com/trovaire/civilpro-spatial</RepositoryUrl>
+    <RepositoryUrl>https://github.com/statler/cpSpatial.Contracts</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/statler/cpSpatial.Contracts</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
@@ -24,10 +26,15 @@
   </PropertyGroup>
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <UserSecretsId>9d4d7528-4469-4594-a924-8d314397ac15</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
   </ItemGroup>
 
 </Project>
