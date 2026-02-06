@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- NuGet metadata -->
+    <PackageId>cpSpatial.Contracts</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Civil Pro Software</Authors>
+    <Company>Civil Pro Software</Company>
+    <Description>
+      Shared DTOs and schema contracts for CivilPro Spatial job payloads.
+    </Description>
+    <PackageTags>civilpro spatial ifc geometry contracts</PackageTags>
+    <RepositoryUrl>https://github.com/trovaire/civilpro-spatial</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <!-- Quality-of-life -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>
