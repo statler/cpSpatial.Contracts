@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace cpSpatial.Contracts
+namespace cpSpatial.Contract.Dtos.Spatial
 {
     public sealed partial class SpatialModelJobPayload
     {
@@ -21,13 +20,18 @@ namespace cpSpatial.Contracts
         public Guid ProjectGuid { get; set; }
         public int SpatialModelId { get; set; }
 
-        public SpatialModelPayload Model { get; set; } = new();
+        public required SpatialModelPayload Model { get; set; } = new();
+        public required List<SpatialModelElementPayload> Elements { get; set; } = new();
+        public required List<GeometryPayload> Geometries { get; set; } = new();
+        public required List<CoordinateSystemPayload> CoordinateSystems { get; set; } = new();
 
-        public List<GeometryPayload> Geometries { get; set; } = new();
-        public List<CoordinateSystemPayload> CoordinateSystems { get; set; } = new();
+        public required List<LotInfo> LstLotInfo { get; set; } = new();
+        public required List<WorkTypeInfo> LstWorkTypes { get; set; } = new();
 
-        public PayloadReferences References { get; set; } = new();
-        public List<SpatialModelElementPayload> Elements { get; set; } = new();
+        public required List<SpatialElementPresetPayload> Presets { get; set; } = new();
+
+        public required List<SpatialShapePayload> Shapes { get; set; } = new();
+        public required List<SpatialModelStylePayload> Styles { get; set; } = new();
     }
 
     public sealed partial class SpatialModelPayload
@@ -44,15 +48,6 @@ namespace cpSpatial.Contracts
         public decimal? PolyLineBufferRadiusM { get; set; }
     }
 
-    public sealed partial class PayloadReferences
-    {
-        public List<SpatialElementPresetPayload> Presets { get; set; } = new();
-        public List<SpatialElementPresetMeshOverridePayload> PresetMeshOverrides { get; set; } = new();
-
-        public List<SpatialShapePayload> Shapes { get; set; } = new();
-        public List<SpatialModelStylePayload> Styles { get; set; } = new();
-    }
-
     public sealed partial class SpatialModelElementPayload
     {
         public int SpatialModelElementId { get; set; }
@@ -64,8 +59,8 @@ namespace cpSpatial.Contracts
         public decimal? HeightInM { get; set; }           // core
         public int? Rotation { get; set; }                // core
 
-        public SpatialModelElementOverridePayload ElementOverride { get; set; }
-        public SpatialModelMeshOverridePayload MeshOverride { get; set; }
+        public SpatialModelElementOverridePayload? ElementOverride { get; set; }
+        public SpatialModelMeshOverridePayload? MeshOverride { get; set; }
     }
 
     public sealed partial class SpatialModelMeshOverridePayload
@@ -110,6 +105,8 @@ namespace cpSpatial.Contracts
 
         // Core default (note: element has HeightInM too; resolution chooses element core first if present)
         public decimal? HeightInM { get; set; }
+
+        public SpatialElementPresetMeshOverridePayload? PresetMeshOverride { get; set; } = new();
     }
 
     public sealed partial class SpatialElementPresetMeshOverridePayload
@@ -207,7 +204,44 @@ namespace cpSpatial.Contracts
         public decimal? TopOffsetInM { get; set; }
     }
 
+    public sealed class LotInfo 
+    {
+        public Guid LotUniqueId { get; set; }
+        public long LotId { get; set; }
+        public string LotNumber { get; set; } = "";
+        public string WorkType { get; set; } = "";
+        public string? Description { get; set; }
+        public string Status { get; set; } = "";
+        public DateTimeOffset? DateOpen { get; set; }
+        public DateTimeOffset? DateConformed { get; set; }
+        public DateTimeOffset? DateWorkStarted { get; set; }
+        public DateTimeOffset? DateWorkCompleted { get; set; }
+        public string? NCRs { get; set; }
+        public List<AdditionalProperty> LstAdditionalProperties { get; set; } = new();
+        public string? URL { get; set; }
+
+        public long EntityId => LotId;
+
+        public Guid EntityGuid => LotUniqueId;
+    }
+    public class WorkTypeInfo
+    {
+        public required string WorkTypeName { get; set; }
+        public string? WorkTypeDescription { get; set; }
+
+        public WorkTypeInfo()
+        {
+
+        }
+    }
+
+    public sealed class AdditionalProperty
+    {
+        public string Key { get; set; } = "";
+        public string? Value { get; set; }
+    }
 }
+
 public enum SpatialElementEffectTargetEnum
 {
     Higher = 0,
@@ -216,6 +250,7 @@ public enum SpatialElementEffectTargetEnum
     Tool = 3,
     Auxiliary = 4
 }
+
 public enum SpatialElementInteractionActionEnum
 {
     None = 0,

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace cpSpatial.Contracts
+namespace cpSpatial.Contract.Dtos.Spatial
 {
     public sealed class SpatialElementInteractionEffect
     {
@@ -19,7 +19,7 @@ namespace cpSpatial.Contracts
         /// Persisted action-specific parameters (JSON object).
         /// Null => assume defaults for the specified Action.
         /// </summary>
-        public SpatialElementInteractionEffectArgs Args { get; set; }
+        public SpatialElementInteractionEffectArgs? Args { get; set; }
 
         /// <summary>
         /// Convenience: returns args with defaults applied (as the interface).
@@ -39,7 +39,7 @@ namespace cpSpatial.Contracts
         decimal? OffsetM { get; set; }
         BoundaryReferenceEnum? Boundary { get; set; }
         bool? ThroughAll { get; set; }
-        string Notes { get; set; }
+        string? Notes { get; set; }
 
         IEnumerable<string> Validate(SpatialElementInteractionActionEnum action);
 
@@ -60,7 +60,7 @@ namespace cpSpatial.Contracts
         string Label,
         ArgFieldType Type,
         bool IsRequired,
-        string HelpText = null,
+        string? HelpText = null,
         decimal? Min = null,
         decimal? Max = null
     );
@@ -84,7 +84,7 @@ namespace cpSpatial.Contracts
         public decimal? OffsetM { get; set; }
         public BoundaryReferenceEnum? Boundary { get; set; }
         public bool? ThroughAll { get; set; }
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
 
         // Terminate / Trim
         public bool? KeepInside { get; set; }
@@ -185,7 +185,7 @@ namespace cpSpatial.Contracts
         /// </summary>
         public static SpatialElementInteractionEffectArgs ResolveArgs(
             SpatialElementInteractionActionEnum action,
-            SpatialElementInteractionEffectArgs argsFromJson,
+            SpatialElementInteractionEffectArgs? argsFromJson,
             InteractionDefaultsProfile profile)
         {
             // CLONE so we never mutate persisted JSON state
