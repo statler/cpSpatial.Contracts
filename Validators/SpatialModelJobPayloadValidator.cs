@@ -50,8 +50,8 @@ namespace cpSpatial.Contract.Validators
                     ? p
                     : null;
 
-                int? surfaceModelType = e.ElementOverride?.SurfaceModelType ?? preset?.SurfaceModelType;
-                int? zSource = e.ElementOverride?.ZSurfaceSetting ?? preset?.ZSurfaceSetting;
+                var surfaceModelType = e.ElementOverride?.SurfaceModelType ?? preset?.SurfaceModelType;
+                var zSource = e.ElementOverride?.ZSurfaceSetting ?? preset?.ZSurfaceSetting;
 
                 int? shapeId = e.ElementOverride?.SpatialShapeId ?? preset?.SpatialShapeId;
                 int? styleId = e.ElementOverride?.SpatialModelStyleId ?? preset?.SpatialModelStyleId;
@@ -103,49 +103,49 @@ namespace cpSpatial.Contract.Validators
 
                 // Geometry type ↔ model type expectations (your assumption: polyline implies extrusion)
                 if (geom.GeometryType.Equals("LineString", StringComparison.OrdinalIgnoreCase)
-                    && surfaceModelType != SMT_EXTRUDE_ALONG_PATH)
+                    && surfaceModelType != SurfaceModelTypeEnum.Extrude_Shape_Along_Path)
                 {
                     errors.Add($"Element {e.SpatialModelElementId}: GeometryType LineString implies SurfaceModelType=Extrude_Shape_Along_Path (4). Actual={surfaceModelType}.");
                 }
 
                 if (geom.GeometryType.Equals("Point", StringComparison.OrdinalIgnoreCase)
-                    && surfaceModelType != SMT_EXTRUDE_VERTICAL_FROM_POINT)
+                    && surfaceModelType == SurfaceModelTypeEnum.Extrude_Vertical_Shape_From_Point)
                 {
                     errors.Add($"Element {e.SpatialModelElementId}: GeometryType Point implies SurfaceModelType=Extrude_Vertical_Shape_From_Point (5). Actual={surfaceModelType}.");
                 }
 
                 if (geom.GeometryType.Equals("Polygon", StringComparison.OrdinalIgnoreCase)
-                    && (surfaceModelType == SMT_EXTRUDE_ALONG_PATH || surfaceModelType == SMT_EXTRUDE_VERTICAL_FROM_POINT))
+                    && (surfaceModelType == SurfaceModelTypeEnum.Extrude_Shape_Along_Path  || surfaceModelType == SurfaceModelTypeEnum.Extrude_Vertical_Shape_From_Point))
                 {
                     errors.Add($"Element {e.SpatialModelElementId}: GeometryType Polygon is not valid for extrusion SurfaceModelType {surfaceModelType}.");
                 }
 
                 // ZSourceSetting rules
-                if (zSource == Z_FROM_GEOMETRY)
+                if (zSource == ZSourceSettingEnum.From_Geometry)
                 {
-                    if (surfaceModelType is SMT_MESH_ONE_SURFACE or SMT_SOLID_ONE_SURFACE_HEIGHT or SMT_SOLID_TWO_SURFACES)
+                    if (surfaceModelType is SurfaceModelTypeEnum.One_Surface_To_3D_Mesh or SurfaceModelTypeEnum.One_Surface_With_Height_To_3DSolid or SurfaceModelTypeEnum.Two_Surfaces_To_3DSolid)
                         errors.Add($"Element {e.SpatialModelElementId}: ZSourceSetting=From_Geometry only valid for extrusions (4/5).");
 
                     // Must have Z present on geometry coordinates
                     if (!HasZ(geom))
                         errors.Add($"Element {e.SpatialModelElementId}: ZSourceSetting=From_Geometry requires Z values on geometry.");
                 }
-                else if (zSource == Z_FROM_SURFACE)
+                else if (zSource == ZSourceSettingEnum.From_Geometry)
                 {
                     // require base surface for types needing base
-                    if (surfaceModelType is SMT_MESH_ONE_SURFACE or SMT_SOLID_ONE_SURFACE_HEIGHT or SMT_EXTRUDE_ALONG_PATH or SMT_EXTRUDE_VERTICAL_FROM_POINT)
+                    if (surfaceModelType is SurfaceModelTypeEnum.One_Surface_To_3D_Mesh or SurfaceModelTypeEnum.One_Surface_With_Height_To_3DSolid or SurfaceModelTypeEnum.Extrude_Shape_Along_Path or SurfaceModelTypeEnum.Extrude_Vertical_Shape_From_Point)
                     {
                         if (baseSurfaceId == null)
                             errors.Add($"Element {e.SpatialModelElementId}: ZSourceSetting=From_Surface requires BaseSurfaceId for SurfaceModelType {surfaceModelType}.");
                     }
 
-                    if (surfaceModelType == SMT_SOLID_TWO_SURFACES)
+                    if (surfaceModelType == SurfaceModelTypeEnum.Two_Surfaces_To_3DSolid)
                     {
                         if (baseSurfaceId == null || topSurfaceId == null)
                             errors.Add($"Element {e.SpatialModelElementId}: Two_Surfaces_To_3DSolid requires both BaseSurfaceId and TopSurfaceId.");
                     }
                 }
-                else if (zSource == Z_FIXED)
+                else if (zSource == ZSourceSettingEnum.Use_Fixed_Z)
                 {
                     // Surfaces redundant; we don’t hard-fail, but flag as warning-like errors if you want strictness.
                     // If you want non-strict, remove these.
@@ -164,15 +164,15 @@ namespace cpSpatial.Contract.Validators
                 // SurfaceModelType rules
                 switch (surfaceModelType)
                 {
-                    case SMT_MESH_ONE_SURFACE:
-                        if (zSource != Z_FROM_SURFACE)
+                    case SurfaceModelTypeEnum.One_Surface_To_3D_Mesh:
+                        if (zSource != ZSourceSettingEnum.From_Surface)
                             errors.Add($"Element {e.SpatialModelElementId}: One_Surface_To_3D_Mesh requires ZSourceSetting=From_Surface.");
                         if (baseSurfaceId == null)
                             errors.Add($"Element {e.SpatialModelElementId}: One_Surface_To_3D_Mesh requires BaseSurfaceId.");
                         break;
 
-                    case SMT_SOLID_ONE_SURFACE_HEIGHT:
-                        if (zSource != Z_FROM_SURFACE)
+                    case SurfaceModelTypeEnum.One_Surface_With_Height_To_3DSolid:
+                        if (zSource != ZSourceSettingEnum.From_Surface)
                             errors.Add($"Element {e.SpatialModelElementId}: One_Surface_With_Height_To_3DSolid requires ZSourceSetting=From_Surface.");
                         if (baseSurfaceId == null)
                             errors.Add($"Element {e.SpatialModelElementId}: One_Surface_With_Height_To_3DSolid requires BaseSurfaceId.");
@@ -180,20 +180,20 @@ namespace cpSpatial.Contract.Validators
                             errors.Add($"Element {e.SpatialModelElementId}: One_Surface_With_Height_To_3DSolid requires HeightInM > 0 (element core or preset).");
                         break;
 
-                    case SMT_SOLID_TWO_SURFACES:
+                    case SurfaceModelTypeEnum.Two_Surfaces_To_3DSolid:
                         if (baseSurfaceId == null || topSurfaceId == null)
                             errors.Add($"Element {e.SpatialModelElementId}: Two_Surfaces_To_3DSolid requires both BaseSurfaceId and TopSurfaceId.");
                         // Height redundant; we don’t fail.
                         break;
 
-                    case SMT_EXTRUDE_ALONG_PATH:
+                    case SurfaceModelTypeEnum.Extrude_Shape_Along_Path:
                         if (shapeId == null)
                             errors.Add($"Element {e.SpatialModelElementId}: Extrude_Shape_Along_Path requires SpatialShapeId (preset or override).");
                         if (!geom.GeometryType.Equals("LineString", StringComparison.OrdinalIgnoreCase))
                             errors.Add($"Element {e.SpatialModelElementId}: Extrude_Shape_Along_Path requires LineString geometry.");
                         break;
 
-                    case SMT_EXTRUDE_VERTICAL_FROM_POINT:
+                    case SurfaceModelTypeEnum.Extrude_Vertical_Shape_From_Point:
                         if (shapeId == null)
                             errors.Add($"Element {e.SpatialModelElementId}: Extrude_Vertical_Shape_From_Point requires SpatialShapeId (preset or override).");
                         if (!geom.GeometryType.Equals("Point", StringComparison.OrdinalIgnoreCase))
