@@ -1,4 +1,5 @@
-﻿using System;
+﻿using cpSpatial.Contract.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -40,9 +41,9 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public int Srid { get; set; }
 
         public decimal? MeshResolutionInM { get; set; }
-        public byte? MeshResolutionStrategy { get; set; }
+        public MeshResolutionStrategyEnum? MeshResolutionStrategy { get; set; }
         public decimal? MaxExtrapolationDistanceInM { get; set; }
-        public byte? ExtrapolationMode { get; set; }
+        public ExtrapolationModeEnum? ExtrapolationMode { get; set; }
 
         public decimal? PointBufferRadiusM { get; set; }
         public decimal? PolyLineBufferRadiusM { get; set; }
@@ -68,9 +69,9 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public int SpatialModelElementId { get; set; }
 
         public decimal? MeshResolutionInM { get; set; }
-        public byte? ExtrapolationMode { get; set; }
+        public ExtrapolationModeEnum? ExtrapolationMode { get; set; }
         public decimal? MaxExtrapolationDistanceInM { get; set; }
-        public byte? MeshResolutionStrategy { get; set; }
+        public MeshResolutionStrategyEnum? MeshResolutionStrategy { get; set; }
     }
 
     public sealed partial class SpatialElementPresetPayload
@@ -86,13 +87,13 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public int? SpatialShapeId { get; set; }
 
         // Defaults for resolution
-        public int SurfaceModelType { get; set; }      // SurfaceModelTypeEnum
-        public int ZSurfaceSetting { get; set; }       // ZSourceSettingEnum
+        public SurfaceModelTypeEnum SurfaceModelType { get; set; }      // SurfaceModelTypeEnum
+        public ZSourceSettingEnum ZSurfaceSetting { get; set; }       // ZSourceSettingEnum
 
         public int TrimPriority { get; set; }          // default 0
         public SpatialElementInteractionEffect? InteractionEffects { get; set; } // JSON as JsonElement/JsonDocument/string (pick one)
 
-        public byte? AnchorMode { get; set; }
+        public AnchorModeEnum? AnchorMode { get; set; }
         public decimal AnchorXOffsetM { get; set; }
         public decimal AnchorYOffsetM { get; set; }
         public int Rotation { get; set; }
@@ -114,9 +115,9 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public int SpatialElementPresetId { get; set; }
 
         public decimal? MeshResolutionInM { get; set; }
-        public byte? ExtrapolationMode { get; set; }
+        public ExtrapolationModeEnum? ExtrapolationMode { get; set; }
         public decimal? MaxExtrapolationDistanceInM { get; set; }
-        public byte? MeshResolutionStrategy { get; set; }
+        public MeshResolutionStrategyEnum? MeshResolutionStrategy { get; set; }
     }
 
     public sealed partial class SpatialShapePayload
@@ -125,8 +126,8 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public Guid? UniqueId { get; set; }
         public required string ShapeName { get; set; }
 
-        public byte ShapeType { get; set; }      // 1=Circle, 2=Rectangle, 3=Polygon
-        public byte ProfileKind { get; set; }    // 1=Solid, 2=Hollow
+        public SpatialShapeTypeEnum ShapeType { get; set; }      // 1=Circle, 2=Rectangle, 3=Polygon
+        public SpatialProfileKindEnum ProfileKind { get; set; }    // 1=Solid, 2=Hollow
 
         // Circle
         public decimal? OuterDiameterM { get; set; }
@@ -140,7 +141,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public object? ProfileJson { get; set; } // JSON (same JSON type choice)
 
         // Anchor defaults relevant to extrusion placement rules
-        public int AnchorMode { get; set; }      // your AnchorMode enum stored as int
+        public AnchorModeEnum AnchorMode { get; set; }      // your AnchorMode enum stored as int
     }
 
     public sealed partial class SpatialModelStylePayload
@@ -190,10 +191,10 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public int? TrimPriority { get; set; }
         public List<SpatialElementInteractionEffect>? InteractionEffects { get; set; } // your JSON shape (or JsonDocument)
 
-        public int? SurfaceModelType { get; set; }
-        public int? ZSurfaceSetting { get; set; }
+        public SurfaceModelTypeEnum? SurfaceModelType { get; set; }
+        public ZSourceSettingEnum? ZSurfaceSetting { get; set; }
 
-        public byte? AnchorMode { get; set; }
+        public AnchorModeEnum? AnchorMode { get; set; }
         public decimal? AnchorXOffsetM { get; set; }
         public decimal? AnchorYOffsetM { get; set; }
 
