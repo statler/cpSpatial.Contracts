@@ -115,7 +115,7 @@ namespace cpSpatial.Contract.Validators
                 }
 
                 if (geom.GeometryType.Equals("Polygon", StringComparison.OrdinalIgnoreCase)
-                    && (surfaceModelType == SurfaceModelTypeEnum.Extrude_Shape_Along_Path  || surfaceModelType == SurfaceModelTypeEnum.Extrude_Vertical_Shape_From_Point))
+                    && (surfaceModelType == SurfaceModelTypeEnum.Extrude_Shape_Along_Path || surfaceModelType == SurfaceModelTypeEnum.Extrude_Vertical_Shape_From_Point))
                 {
                     errors.Add($"Element {e.SpatialModelElementId}: GeometryType Polygon is not valid for extrusion SurfaceModelType {surfaceModelType}.");
                 }
@@ -130,7 +130,7 @@ namespace cpSpatial.Contract.Validators
                     if (!HasZ(geom))
                         errors.Add($"Element {e.SpatialModelElementId}: ZSourceSetting=From_Geometry requires Z values on geometry.");
                 }
-                else if (zSource == ZSourceSettingEnum.From_Geometry)
+                else if (zSource == ZSourceSettingEnum.From_Surface)
                 {
                     // require base surface for types needing base
                     if (surfaceModelType is SurfaceModelTypeEnum.One_Surface_To_3D_Mesh or SurfaceModelTypeEnum.One_Surface_With_Height_To_3DSolid or SurfaceModelTypeEnum.Extrude_Shape_Along_Path or SurfaceModelTypeEnum.Extrude_Vertical_Shape_From_Point)

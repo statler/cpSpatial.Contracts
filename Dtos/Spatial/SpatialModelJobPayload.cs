@@ -94,6 +94,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public SpatialElementInteractionEffect? InteractionEffects { get; set; } // JSON as JsonElement/JsonDocument/string (pick one)
 
         public AnchorModeEnum? AnchorMode { get; set; }
+        public ExtrusionZMode? ExtrusionZMode { get; set; }
         public decimal AnchorXOffsetM { get; set; }
         public decimal AnchorYOffsetM { get; set; }
         public int Rotation { get; set; }
@@ -195,6 +196,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public ZSourceSettingEnum? ZSurfaceSetting { get; set; }
 
         public AnchorModeEnum? AnchorMode { get; set; }
+        public ExtrusionZMode? ExtrusionZMode { get; set; }
         public decimal? AnchorXOffsetM { get; set; }
         public decimal? AnchorYOffsetM { get; set; }
 
