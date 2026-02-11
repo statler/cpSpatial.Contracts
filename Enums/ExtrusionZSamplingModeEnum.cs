@@ -1,6 +1,6 @@
 ﻿namespace cpSpatial.Contract.Enums
 {
-    public enum ExtrusionZMode : byte
+    public enum ExtrusionZSamplingModeEnum
     {
         EndpointsOnly = 1,
         EachVertex = 2,

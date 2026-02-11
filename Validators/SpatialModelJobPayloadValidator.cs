@@ -39,6 +39,8 @@ namespace cpSpatial.Contract.Validators
 
             var geometryById = payload.Geometries?.ToDictionary(g => g.GeometryId)
                                ?? new Dictionary<int, GeometryPayload>();
+            var lotById = payload.LstLotInfo?.ToDictionary(l => l.LotId)
+                               ?? new Dictionary<long, LotInfo>();
 
             // Model mesh defaults sanity
             ValidateMeshValues("Model", payload.Model.MeshResolutionInM, payload.Model.MaxExtrapolationDistanceInM, errors);
@@ -51,7 +53,7 @@ namespace cpSpatial.Contract.Validators
                     : null;
 
                 var surfaceModelType = e.ElementOverride?.SurfaceModelType ?? preset?.SurfaceModelType;
-                var zSource = e.ElementOverride?.ZSurfaceSetting ?? preset?.ZSurfaceSetting;
+                var zSource = e.ElementOverride?.ZSourceSetting ?? preset?.ZSourceSetting;
 
                 int? shapeId = e.ElementOverride?.SpatialShapeId ?? preset?.SpatialShapeId;
                 int? styleId = e.ElementOverride?.SpatialModelStyleId ?? preset?.SpatialModelStyleId;
@@ -63,17 +65,21 @@ namespace cpSpatial.Contract.Validators
                 decimal? topOffset = e.ElementOverride?.TopOffsetInM ?? preset?.TopOffsetInM ?? 0m;
 
                 decimal? height = e.HeightInM ?? preset?.HeightInM;
+                LotInfo? lot = null;
 
-                // Geometry presence
+                //Lot is required in spatial element.
+                if (!lotById.TryGetValue(e.LotId, out lot))
+                {
+                    errors.Add($"Element {e.SpatialModelElementId}: LotId {e.LotId} missing from payload.LstLotInfo.");
+                }
+
+                // Geometry presence - if specified, reference must exist. Null geometryId is allowed as we can get all of the geometries for 
+                // a specific lot and apply the same mapping.
                 GeometryPayload? geom = null;
                 if (e.GeometryId != null)
                 {
                     if (!geometryById.TryGetValue(e.GeometryId.Value, out geom))
                         errors.Add($"Element {e.SpatialModelElementId}: GeometryId {e.GeometryId.Value} missing from payload.Geometries.");
-                }
-                else
-                {
-                    errors.Add($"Element {e.SpatialModelElementId}: GeometryId is null (geometry is required for spatial processing).");
                 }
 
                 // Must have SurfaceModelType + ZSourceSetting resolved
@@ -213,7 +219,7 @@ namespace cpSpatial.Contract.Validators
 
         private static bool HasZ(GeometryPayload g)
         {
-            var pts = g?.Geometry;
+            var pts = g?.GeometryCoordinates;
             if (pts == null || pts.Count == 0) return false;
 
             static bool IsValidZ(double? z) => z.HasValue && !double.IsNaN(z.Value);

@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <!-- NuGet metadata -->
     <PackageId>cpSpatial.Contracts</PackageId>
-    <Version>1.0.11</Version>
+    <Version>1.0.19</Version>
     <Authors>Civil Pro Software</Authors>
     <Company>Civil Pro Software</Company>
     <Description>
