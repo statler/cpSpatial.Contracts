@@ -167,6 +167,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
     public class CoordinateSystemPayload
     {
         public int CoordinateSystemId { get; set; }
+        public Guid? CoordinateUniqueId { get; set; }
         public int Srid { get; set; }
         public string Wkt { get; set; } = "";
     }
@@ -260,35 +261,4 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public string Key { get; set; } = "";
         public string? Value { get; set; }
     }
-}
-
-public enum SpatialElementEffectTargetEnum
-{
-    Higher = 0,
-    Lower = 1,
-    Host = 2,
-    Tool = 3,
-    Auxiliary = 4
-}
-
-public enum SpatialElementInteractionActionEnum
-{
-    None = 0,
-
-    Terminate = 1,
-    TrimToBoundary = 2,
-
-    SubtractVolume = 3,
-    AddOpening = 4,
-
-    OffsetAround = 5,
-    StepOver = 6,
-
-    Split = 7,
-    Merge = 8,
-
-    ClearanceOnly = 9,
-    ClearanceEnvelope = 10,
-
-    Ignore = 11
 }

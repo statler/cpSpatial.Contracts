@@ -1,5 +1,8 @@
-﻿using System;
+﻿using cpSpatial.Contract.Enums;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
 using System.Text;
 
 namespace cpSpatial.Contract.Dtos.Spatial
@@ -8,6 +11,8 @@ namespace cpSpatial.Contract.Dtos.Spatial
     {
         // Needed for EF to track items in a JSON array reliably (OwnsMany needs a key)
         public Guid EffectId { get; set; } = Guid.NewGuid();
+
+        public decimal OrderId { get; set; } = 0; // Order in which effects are applied (lower first). 
 
         // Who this effect is applied to (higher/lower, host/tool, etc.)
         public SpatialElementEffectTargetEnum Target { get; set; }
@@ -20,6 +25,9 @@ namespace cpSpatial.Contract.Dtos.Spatial
         /// Null => assume defaults for the specified Action.
         /// </summary>
         public SpatialElementInteractionEffectArgs? Args { get; set; }
+
+
+        public string ArgsString => Args == null ? "" : Args.ToDisplayString(Action);
 
         /// <summary>
         /// Convenience: returns args with defaults applied (as the interface).
@@ -46,32 +54,16 @@ namespace cpSpatial.Contract.Dtos.Spatial
         IReadOnlyList<ArgFieldDescriptor> DescribeFields(SpatialElementInteractionActionEnum action);
     }
 
-    public enum BoundaryReferenceEnum
-    {
-        Default = 0,
-        OuterFace = 1,
-        InnerFace = 2,
-        Centerline = 3,
-        HostBoundary = 4
-    }
-
     public sealed record ArgFieldDescriptor(
         string Name,
         string Label,
-        ArgFieldType Type,
+        ArgFieldTypeEnum Type,
         bool IsRequired,
         string? HelpText = null,
         decimal? Min = null,
-        decimal? Max = null
+        decimal? Max = null,
+        UnitKind Unit = UnitKind.None
     );
-
-    public enum ArgFieldType
-    {
-        Decimal,
-        Boolean,
-        String,
-        Enum
-    }
 
     /// <summary>
     /// Single stable persisted args shape (JSON).
@@ -133,48 +125,218 @@ namespace cpSpatial.Contract.Dtos.Spatial
             // If you prefer, move this to a separate service so your model stays "data only".
             return action switch
             {
+                SpatialElementInteractionActionEnum.None => Array.Empty<ArgFieldDescriptor>(),
+
+                SpatialElementInteractionActionEnum.Ignore => Array.Empty<ArgFieldDescriptor>(),
+
                 SpatialElementInteractionActionEnum.Terminate => new[]
                 {
-                    new ArgFieldDescriptor(nameof(Boundary), "Terminate at", ArgFieldType.Enum, false, "Inner face / outer face / etc."),
-                    new ArgFieldDescriptor(nameof(OffsetM), "Terminate offset (m)", ArgFieldType.Decimal, false, "Stop short/long by this amount."),
-                    new ArgFieldDescriptor(nameof(KeepInside), "Keep inside", ArgFieldType.Boolean, false, "Keep only inside portion after trimming."),
-                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance (m)", ArgFieldType.Decimal, false),
-                    new ArgFieldDescriptor(nameof(Notes), "Notes", ArgFieldType.String, false),
+                    new ArgFieldDescriptor(nameof(Boundary), "Terminate at", ArgFieldTypeEnum.Enum, false,
+                        "Which boundary reference to terminate against (inner/outer/etc.)."),
+
+                    new ArgFieldDescriptor(nameof(OffsetM), "Terminate offset", ArgFieldTypeEnum.Decimal, false,
+                        "Stop short/long by this amount.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(KeepInside), "Keep inside", ArgFieldTypeEnum.Boolean, false,
+                        "Keep only the inside portion after trimming."),
+
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false,
+                        "Optional clearance applied at the termination.", Unit: UnitKind.Length),
                 },
 
                 SpatialElementInteractionActionEnum.TrimToBoundary => new[]
                 {
-                    new ArgFieldDescriptor(nameof(Boundary), "Trim to", ArgFieldType.Enum, false),
-                    new ArgFieldDescriptor(nameof(OffsetM), "Offset (m)", ArgFieldType.Decimal, false),
-                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance (m)", ArgFieldType.Decimal, false),
-                    new ArgFieldDescriptor(nameof(Notes), "Notes", ArgFieldType.String, false),
+                    new ArgFieldDescriptor(nameof(Boundary), "Trim to", ArgFieldTypeEnum.Enum, false,
+                        "Which boundary reference to trim against."),
+
+                    new ArgFieldDescriptor(nameof(OffsetM), "Offset", ArgFieldTypeEnum.Decimal, false,
+                        "Offset the trim boundary by this amount.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(KeepInside), "Keep inside", ArgFieldTypeEnum.Boolean, false,
+                        "Keep only the inside portion after trimming."),
+
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false, Unit: UnitKind.Length),
+                },
+
+                SpatialElementInteractionActionEnum.SubtractVolume => new[]
+                {
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false,
+                        "Optional clearance applied to the subtraction tool/profile.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(ThroughAll), "Through all", ArgFieldTypeEnum.Boolean, false,
+                        "If applicable, subtract through the full thickness/depth."),
                 },
 
                 SpatialElementInteractionActionEnum.AddOpening => new[]
                 {
-                    new ArgFieldDescriptor(nameof(OpeningOversizeM), "Opening oversize (m)", ArgFieldType.Decimal, false, "Oversize applied to opening profile."),
-                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance (m)", ArgFieldType.Decimal, false, "Alternative oversize/clearance."),
-                    new ArgFieldDescriptor(nameof(ThroughAll), "Through all", ArgFieldType.Boolean, false, "Penetrate full thickness."),
-                    new ArgFieldDescriptor(nameof(Notes), "Notes", ArgFieldType.String, false),
+                    new ArgFieldDescriptor(nameof(OpeningOversizeM), "Opening oversize", ArgFieldTypeEnum.Decimal, false,
+                        "Oversize applied to the opening profile.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false,
+                        "Optional alternative/additional clearance.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(ThroughAll), "Through all", ArgFieldTypeEnum.Boolean, false,
+                        "Penetrate full thickness."),
+                },
+
+                SpatialElementInteractionActionEnum.OffsetAround => new[]
+                {
+                    new ArgFieldDescriptor(nameof(OffsetM), "Offset", ArgFieldTypeEnum.Decimal, false,
+                        "Offset distance applied around the target/tool.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(Boundary), "Reference", ArgFieldTypeEnum.Enum, false,
+                        "Optional reference used to interpret the offset."),
+
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false,
+                        "Optional clearance if distinguished from offset.", Unit: UnitKind.Length),
                 },
 
                 SpatialElementInteractionActionEnum.StepOver => new[]
                 {
-                    new ArgFieldDescriptor(nameof(StepDeltaM), "Step (m)", ArgFieldType.Decimal, true, "Raise/lower amount."),
-                    new ArgFieldDescriptor(nameof(MinCoverM), "Min cover (m)", ArgFieldType.Decimal, false),
-                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance (m)", ArgFieldType.Decimal, false),
-                    new ArgFieldDescriptor(nameof(Notes), "Notes", ArgFieldType.String, false),
+                    new ArgFieldDescriptor(nameof(StepDeltaM), "Step", ArgFieldTypeEnum.Decimal, true,
+                        "Raise/lower amount.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(MinCoverM), "Min cover", ArgFieldTypeEnum.Decimal, false,
+                        "Optional minimum cover to preserve.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false , Unit: UnitKind.Length),
+                },
+
+                SpatialElementInteractionActionEnum.Split => Array.Empty<ArgFieldDescriptor>(),
+
+                SpatialElementInteractionActionEnum.Merge => Array.Empty<ArgFieldDescriptor>(),
+
+                SpatialElementInteractionActionEnum.ClearanceOnly => new[]
+                {
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false,
+                        "Clearance distance used for clash/clearance evaluation only.", Unit: UnitKind.Length),
+                },
+
+                SpatialElementInteractionActionEnum.ClearanceEnvelope => new[]
+                {
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false,
+                        "Clearance distance used to form an envelope.", Unit: UnitKind.Length),
+
+                    new ArgFieldDescriptor(nameof(Boundary), "Reference", ArgFieldTypeEnum.Enum, false,
+                        "Optional reference used to interpret the envelope."),
                 },
 
                 _ => new[]
                 {
-                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance (m)", ArgFieldType.Decimal, false),
-                    new ArgFieldDescriptor(nameof(OffsetM), "Offset (m)", ArgFieldType.Decimal, false),
-                    new ArgFieldDescriptor(nameof(Boundary), "Boundary", ArgFieldType.Enum, false),
-                    new ArgFieldDescriptor(nameof(ThroughAll), "Through all", ArgFieldType.Boolean, false),
-                    new ArgFieldDescriptor(nameof(Notes), "Notes", ArgFieldType.String, false),
+                    new ArgFieldDescriptor(nameof(ClearanceM), "Clearance", ArgFieldTypeEnum.Decimal, false, Unit: UnitKind.Length),
+                    new ArgFieldDescriptor(nameof(OffsetM), "Offset", ArgFieldTypeEnum.Decimal, false, Unit: UnitKind.Length),
                 }
             };
+
+        }
+
+        public string ToDisplayString(
+            SpatialElementInteractionActionEnum action,
+            UnitPreferences? units = null,
+            CultureInfo? culture = null)
+        {
+            units ??= new UnitPreferences();
+            culture ??= CultureInfo.CurrentCulture;
+
+            var fields = DescribeFields(action);
+            if (fields.Count == 0) return "(defaults)";
+
+            var parts = new List<string>();
+
+            foreach (var f in fields)
+            {
+                var prop = GetType().GetProperty(f.Name, BindingFlags.Instance | BindingFlags.Public);
+                if (prop is null || !prop.CanRead) continue;
+
+                var val = prop.GetValue(this);
+                if (val is null) continue;
+
+                var formatted = FormatValue(f, val, units, culture);
+                var label = GetDisplayLabel(f, units);
+                parts.Add($"{label}: {formatted}");
+            }
+
+            return parts.Count == 0 ? "(defaults)" : string.Join(" | ", parts);
+        }
+
+        private static string GetDisplayLabel(
+            ArgFieldDescriptor f,
+            UnitPreferences units)
+        {
+            if (f.Unit != UnitKind.Length)
+                return f.Label;
+
+            string suffix = units.LengthUnit switch
+            {
+                LengthUnit.Millimetre => "mm",
+                LengthUnit.Foot => "ft",
+                _ => "m"
+            };
+
+            return $"{f.Label} ({suffix})";
+        }
+
+        private static string FormatValue(
+            ArgFieldDescriptor f,
+            object val,
+            UnitPreferences units,
+            CultureInfo culture)
+        {
+            return f.Type switch
+            {
+                ArgFieldTypeEnum.Decimal => FormatDecimal(f.Unit, val, units, culture),
+                ArgFieldTypeEnum.Boolean => val is bool b ? (b ? "Yes" : "No") : val.ToString() ?? "",
+                ArgFieldTypeEnum.Enum => val.ToString() ?? "",
+                ArgFieldTypeEnum.String => val.ToString() ?? "",
+                _ => val.ToString() ?? ""
+            };
+        }
+
+        private static string FormatDecimal(
+            UnitKind unitKind,
+            object val,
+            UnitPreferences units,
+            CultureInfo culture)
+        {
+            var meters = val switch
+            {
+                decimal d => d,
+                double d => (decimal)d,
+                float f => (decimal)f,
+                _ => Convert.ToDecimal(val, culture)
+            };
+
+            if (unitKind != UnitKind.Length)
+            {
+                return meters.ToString($"0.{new string('#', Math.Max(0, units.LengthDecimals))}", culture);
+            }
+
+            decimal displayValue;
+            string suffix;
+
+            switch (units.LengthUnit)
+            {
+                case LengthUnit.Millimetre:
+                    displayValue = meters * 1000m;
+                    suffix = "mm";
+                    break;
+
+                case LengthUnit.Foot:
+                    displayValue = meters * 3.280839895013123m;
+                    suffix = "ft";
+                    break;
+
+                case LengthUnit.Metre:
+                default:
+                    displayValue = meters;
+                    suffix = "m";
+                    break;
+            }
+
+            var fmt = $"0.{new string('#', Math.Max(0, units.LengthDecimals))}";
+            var text = displayValue.ToString(fmt, culture);
+
+            return units.IncludeUnitSuffix ? $"{text}{suffix}" : text;
         }
     }
 
