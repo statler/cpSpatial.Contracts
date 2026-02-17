@@ -2,7 +2,7 @@
 
 namespace cpSpatial.Contract.Dtos.Spatial
 {
-    public sealed class ImportLandXmlBodyRequest
+    public class ImportLandXmlBodyRequest
     {
         public Guid? SurfaceId { get; set; }
 
