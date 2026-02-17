@@ -167,10 +167,11 @@ namespace cpSpatial.Contract.Dtos.Spatial
     public class CoordinateSystemPayload
     {
         public int CoordinateSystemId { get; set; }
-        public Guid? CoordinateUniqueId { get; set; }
-        public int Srid { get; set; }
-        public string Wkt { get; set; } = "";
+        public Guid? SourceGuid { get; set; }
+        public int? Srid { get; set; }
+        public string? Wkt { get; set; } = "";
     }
+
     public class CoordinateDto
     {
         public double X { get; set; }
