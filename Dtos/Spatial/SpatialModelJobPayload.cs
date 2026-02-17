@@ -39,7 +39,6 @@ namespace cpSpatial.Contract.Dtos.Spatial
     public class SpatialModelPayload
     {
         public int CoordinateSystemId { get; set; }
-        public int Srid { get; set; }
 
         public decimal? MeshResolutionInM { get; set; }
         public MeshResolutionStrategyEnum? MeshResolutionStrategy { get; set; }

@@ -1,24 +1,23 @@
 ﻿using cpSpatial.Contract.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace cpSpatial.Contract.Dtos.Spatial
 {
     public sealed class SurfaceSummaryDto
     {
-        public Guid surface_id { get; set; }
-        public string? name { get; set; }
-        public string? sourceUri { get; set; }
+        public Guid SurfaceId { get; set; }
+        public string? SurfaceName { get; set; }
+        public string? SourceUri { get; set; }
 
-        public SurfaceStatusEnum status { get; set; }
+        public SurfaceStatusEnum Status { get; set; }
+        public Guid SourceClientCoordinateGuid { get; set; }
+        public Guid StoredClientCoordinateGuid { get; set; }
 
-        // 🔁 Replaces srid
-        public Guid source_coordinate_system_id { get; set; }
-        public Guid stored_coordinate_system_id { get; set; }
+        public double TileSizeM { get; set; }
+        public long? TriangleCount { get; set; }
 
-        public double tile_size_m { get; set; }
-        public long? triangle_count { get; set; }
-
-        public DateTimeOffset? imported_on { get; set; }
-        public DateTimeOffset? replaced_on { get; set; }
+        public DateTimeOffset? ImportedOn { get; set; }
+        public DateTimeOffset? ReplacedOn { get; set; }
 
         public Guid ProjectGuid { get; set; }
     }

@@ -6,7 +6,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
     public record CoordinateSystemDto(
         Guid CoordinateSystemId,
         Guid ProjectGuid,
-        Guid SourceGuid,
+        Guid ClientCoordinateGuid,
         int? Srid,
         string Name,
         string? Description,

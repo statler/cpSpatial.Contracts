@@ -12,7 +12,7 @@
 
         /// <summary>Blob filename. Blob path will be "{ClientId}/{FileName}".</summary>
         public string FileName { get; set; } = "";
-
-        public CoordinateSystemPayload CoordinateSystem { get; set; }
+        public Guid SourceClientCoordinateGuid { get; set; }
+        public Guid StoredClientCoordinateGuid { get; set; }
     }
 }

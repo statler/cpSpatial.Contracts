@@ -19,7 +19,8 @@
         public DateTimeOffset DateUploaded { get; set; }
         public DateTimeOffset CreatedUtc { get; set; }
         public DateTimeOffset ModifiedUtc { get; set; }
-        public Guid CoordinateSystemId { get; set; }
+        public Guid SourceClientCoordinateGuid { get; set; }
+        public Guid StoredClientCoordinateGuid { get; set; }
 
     }
 }

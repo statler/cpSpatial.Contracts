@@ -12,10 +12,10 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public string? Name { get; set; }
 
         [Required]
-        public Guid SourceCoordinateSystemId { get; set; }
+        public Guid SourceClientCoordinateGuid { get; set; }
 
         [Required]
-        public Guid StoredCoordinateSystemId { get; set; }
+        public Guid StoredClientCoordinateGuid { get; set; }
 
         [Required]
         public double TileSizeMeters { get; set; }

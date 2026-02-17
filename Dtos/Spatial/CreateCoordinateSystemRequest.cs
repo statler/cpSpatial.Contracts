@@ -6,7 +6,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
     public class CreateCoordinateSystemRequest
     {
         public Guid ProjectGuid { get; set; }
-        public Guid SourceGuid { get; set; }            // required (payload identifier)
+        public Guid ClientCoordinateGuid { get; set; }            // required (payload identifier)
         public int? Srid { get; set; }                  // optional reference
         public string Name { get; set; } = "";
         public string? Description { get; set; }
