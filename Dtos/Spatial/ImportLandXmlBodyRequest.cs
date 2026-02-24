@@ -17,8 +17,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
         [Required]
         public Guid StoredClientCoordinateGuid { get; set; }
 
-        [Required]
-        public double TileSizeMeters { get; set; }
+        public double TileSizeMeters { get; set; } = 50;
 
         public double? SnapMetersXY { get; set; }
     }
