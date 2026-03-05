@@ -58,7 +58,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public int? SpatialElementPresetId { get; set; }
 
         public decimal? HeightInM { get; set; }           // core
-        public int? Rotation { get; set; }                // core
+        public int? Rotation { get; set; }         // core                        
 
         public SpatialModelElementOverridePayload? ElementOverride { get; set; }
         public SpatialModelMeshOverridePayload? MeshOverride { get; set; }
@@ -99,26 +99,23 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public decimal AnchorYOffsetM { get; set; }
         public int Rotation { get; set; }
 
-        // Surfaces (GUIDs only; spatial service resolves surface content)
-        public Guid? BaseSurfaceId { get; set; }
-        public Guid? TopSurfaceId { get; set; }
-        public decimal? BaseOffsetInM { get; set; }
-        public decimal? TopOffsetInM { get; set; }
-
         // Core default (note: element has HeightInM too; resolution chooses element core first if present)
         public decimal? HeightInM { get; set; }
 
-        public SpatialElementPresetMeshOverridePayload? PresetMeshOverride { get; set; } = new();
+        public SpatialElementPresetSurfaceInfoPayload? PresetSurfaceInfo { get; set; } = new();
+        public SpatialElementPresetSurfaceInfoPayload? PresetSurfaceInfo_2 { get; set; } = new();
     }
 
-    public class SpatialElementPresetMeshOverridePayload
+    public class SpatialElementPresetSurfaceInfoPayload
     {
         public int SpatialElementPresetId { get; set; }
-
+        public Guid? SurfaceId { get; set; }
         public decimal? MeshResolutionInM { get; set; }
         public ExtrapolationModeEnum? ExtrapolationMode { get; set; }
         public decimal? MaxExtrapolationDistanceInM { get; set; }
         public MeshResolutionStrategyEnum? MeshResolutionStrategy { get; set; }
+        public double? MaxGradeDeg { get; set; }
+        public decimal? OffsetInM { get; set; }
     }
 
     public class SpatialShapePayload
@@ -204,6 +201,7 @@ namespace cpSpatial.Contract.Dtos.Spatial
 
     public sealed partial class SpatialModelElementOverridePayload
     {
+        public int? SpatialModelElementId { get; set; }
         public int? SpatialModelStyleId { get; set; }
         public int? SpatialShapeId { get; set; }
 
@@ -212,17 +210,27 @@ namespace cpSpatial.Contract.Dtos.Spatial
 
         public SurfaceModelTypeEnum? SurfaceModelType { get; set; }
         public ZSourceSettingEnum? ZSourceSetting { get; set; }
+        public double? MaxGradeDeg { get; set; }
 
         public AnchorModeEnum? AnchorMode { get; set; }
         public ExtrusionZSamplingModeEnum? ExtrusionZSamplingMode { get; set; }
         public decimal? AnchorXOffsetM { get; set; }
         public decimal? AnchorYOffsetM { get; set; }
 
-        public Guid? BaseSurfaceId { get; set; }
-        public Guid? TopSurfaceId { get; set; }
+        public SpatialElementSurfaceInfoPayload? ElementSurfaceInfo { get; set; } = new();
+        public SpatialElementSurfaceInfoPayload? ElementSurfaceInfo_2 { get; set; } = new();
+    }
 
-        public decimal? BaseOffsetInM { get; set; }
-        public decimal? TopOffsetInM { get; set; }
+    public class SpatialElementSurfaceInfoPayload
+    {
+        public int SpatialModelElementId { get; set; }
+        public Guid? SurfaceId { get; set; }
+        public decimal? MeshResolutionInM { get; set; }
+        public ExtrapolationModeEnum? ExtrapolationMode { get; set; }
+        public decimal? MaxExtrapolationDistanceInM { get; set; }
+        public MeshResolutionStrategyEnum? MeshResolutionStrategy { get; set; }
+        public double? MaxGradeDeg { get; set; }
+        public decimal? OffsetInM { get; set; }
     }
 
     public sealed class LotInfo 

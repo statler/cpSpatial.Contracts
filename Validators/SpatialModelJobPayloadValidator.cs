@@ -58,11 +58,11 @@ namespace cpSpatial.Contract.Validators
                 int? shapeId = e.ElementOverride?.SpatialShapeId ?? preset?.SpatialShapeId;
                 int? styleId = e.ElementOverride?.SpatialModelStyleId ?? preset?.SpatialModelStyleId;
 
-                Guid? baseSurfaceId = e.ElementOverride?.BaseSurfaceId ?? preset?.BaseSurfaceId;
-                Guid? topSurfaceId = e.ElementOverride?.TopSurfaceId ?? preset?.TopSurfaceId;
+                Guid? baseSurfaceId = e.ElementOverride?.ElementSurfaceInfo?.SurfaceId ?? preset?.PresetSurfaceInfo?.SurfaceId;
+                Guid? topSurfaceId = e.ElementOverride?.ElementSurfaceInfo_2?.SurfaceId ?? preset?.PresetSurfaceInfo?.SurfaceId;
 
-                decimal? baseOffset = e.ElementOverride?.BaseOffsetInM ?? preset?.BaseOffsetInM ?? 0m;
-                decimal? topOffset = e.ElementOverride?.TopOffsetInM ?? preset?.TopOffsetInM ?? 0m;
+                decimal? baseOffset = e.ElementOverride?.ElementSurfaceInfo?.OffsetInM ?? preset?.PresetSurfaceInfo?.OffsetInM ?? 0m;
+                decimal? topOffset = e.ElementOverride?.ElementSurfaceInfo_2?.OffsetInM ?? preset?.PresetSurfaceInfo?.OffsetInM ?? 0m;
 
                 decimal? height = e.HeightInM ?? preset?.HeightInM;
                 LotInfo? lot = null;
@@ -100,8 +100,8 @@ namespace cpSpatial.Contract.Validators
                 if (e.MeshOverride != null)
                     ValidateMeshValues($"Element {e.SpatialModelElementId} mesh override", e.MeshOverride.MeshResolutionInM, e.MeshOverride.MaxExtrapolationDistanceInM, errors);
 
-                if (preset?.PresetMeshOverride != null)
-                    ValidateMeshValues($"Preset {preset.SpatialElementPresetId} mesh override", preset?.PresetMeshOverride.MeshResolutionInM, preset?.PresetMeshOverride.MaxExtrapolationDistanceInM, errors);
+                if (preset?.PresetSurfaceInfo != null)
+                    ValidateMeshValues($"Preset {preset.SpatialElementPresetId} mesh override", preset?.PresetSurfaceInfo.MeshResolutionInM, preset?.PresetSurfaceInfo.MaxExtrapolationDistanceInM, errors);
 
                 // If we’re missing required basics, skip deeper checks to avoid cascades
                 if (surfaceModelType == null || zSource == null || geom == null)
