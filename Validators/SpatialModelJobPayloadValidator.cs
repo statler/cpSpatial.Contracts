@@ -96,10 +96,6 @@ namespace cpSpatial.Contract.Validators
                 if (styleId != null && !styleIds.Contains(styleId.Value))
                     errors.Add($"Element {e.SpatialModelElementId}: SpatialModelStyleId {styleId.Value} not present in payload.References.Styles.");
 
-                // Mesh override chain sanity: element mesh -> preset mesh -> model
-                if (e.MeshOverride != null)
-                    ValidateMeshValues($"Element {e.SpatialModelElementId} mesh override", e.MeshOverride.MeshResolutionInM, e.MeshOverride.MaxExtrapolationDistanceInM, errors);
-
                 if (preset?.PresetSurfaceInfo != null)
                     ValidateMeshValues($"Preset {preset.SpatialElementPresetId} mesh override", preset?.PresetSurfaceInfo.MeshResolutionInM, preset?.PresetSurfaceInfo.MaxExtrapolationDistanceInM, errors);
 

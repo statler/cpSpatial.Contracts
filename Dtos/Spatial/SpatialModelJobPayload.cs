@@ -61,17 +61,6 @@ namespace cpSpatial.Contract.Dtos.Spatial
         public int? Rotation { get; set; }         // core                        
 
         public SpatialModelElementOverridePayload? ElementOverride { get; set; }
-        public SpatialModelMeshOverridePayload? MeshOverride { get; set; }
-    }
-
-    public class SpatialModelMeshOverridePayload
-    {
-        public int SpatialModelElementId { get; set; }
-
-        public decimal? MeshResolutionInM { get; set; }
-        public ExtrapolationModeEnum? ExtrapolationMode { get; set; }
-        public decimal? MaxExtrapolationDistanceInM { get; set; }
-        public MeshResolutionStrategyEnum? MeshResolutionStrategy { get; set; }
     }
 
     public class SpatialElementPresetPayload
